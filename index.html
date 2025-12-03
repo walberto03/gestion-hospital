@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Lavandería Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tooltip-icon { cursor: pointer; color: #3b82f6; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Navegación Principal -->
+    <nav class="bg-blue-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-shirt text-2xl mr-3"></i>
+                    <span class="font-bold text-xl tracking-tight">Lavandería PRO</span>
+                </div>
+                <div class="flex space-x-1 overflow-x-auto">
+                    <button onclick="switchTab('machine')" class="tab-btn px-4 py-4 hover:bg-blue-800 border-b-4 border-transparent focus:outline-none font-medium transition" id="btn-machine">
+                        <i class="fa-solid fa-gears mr-2"></i>Máquina
+                    </button>
+                    <button onclick="switchTab('incoming')" class="tab-btn px-4 py-4 hover:bg-blue-800 border-b-4 border-transparent focus:outline-none font-medium transition" id="btn-incoming">
+                        <i class="fa-solid fa-basket-shopping mr-2"></i>Recepción
+                    </button>
+                    <button onclick="switchTab('chemical')" class="tab-btn px-4 py-4 hover:bg-blue-800 border-b-4 border-transparent focus:outline-none font-medium transition" id="btn-chemical">
+                        <i class="fa-solid fa-flask mr-2"></i>Química
+                    </button>
+                    <button onclick="switchTab('learning')" class="tab-btn px-4 py-4 hover:bg-blue-800 border-b-4 border-transparent focus:outline-none font-medium transition" id="btn-learning">
+                        <i class="fa-solid fa-book-open mr-2"></i>Aprendizaje
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- SECCIÓN 1: PARÁMETROS DE MÁQUINA -->
+        <div id="machine" class="tab-content active fade-in">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 border-b pb-2">Configuración de la Lavadora</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Capacidad de la Lavadora (kg)</label>
+                        <input type="number" id="machineCapacity" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Ej: 20">
+                        <p class="text-xs text-gray-500 mt-1">Capacidad máxima indicada por el fabricante.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Factor de Carga (%)</label>
+                        <select id="loadFactor" class="w-full p-2 border border-gray-300 rounded-md">
+                            <option value="1.0">100% (Carga Completa - Ropa Plana)</option>
+                            <option value="0.8">80% (Carga Óptima - Ropa Forma)</option>
+                            <option value="0.5">50% (Media Carga - Delicados)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-blue-50 rounded-md border border-blue-200">
+                    <h3 class="font-bold text-blue-800">Resumen de Capacidad</h3>
+                    <p class="mt-2 text-sm">Carga Real Recomendada: <span id="realLoadDisplay" class="font-bold text-lg text-blue-900">0</span> kg</p>
+                    
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="goToTreatment()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow transition flex items-center">
+                            <span>Ver Tratamiento Ideal para esta Carga</span>
+                            <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: RECEPCIÓN DE ROPA -->
+        <div id="incoming" class="tab-content fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Formulario de Entrada -->
+                <div class="lg:col-span-1 bg-white rounded-lg shadow-md p-6 h-fit">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">Ingreso de Prendas</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tipo de Prenda</label>
+                            <select id="garmentType" class="w-full p-2 border rounded mt-1">
+                                <option value="Sabanas">Sábanas (Algodón/Pol)</option>
+                                <option value="Toallas">Toallas (Felpa)</option>
+                                <option value="Manteleria">Mantelería</option>
+                                <option value="Uniformes">Uniformes</option>
+                                <option value="Delicados">Delicados / Paciente</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Peso del Lote (kg)</label>
+                            <input type="number" id="garmentWeight" class="w-full p-2 border rounded mt-1" placeholder="0.0">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nivel de Suciedad / Riesgo</label>
+                            <select id="soilLevel" class="w-full p-2 border rounded mt-1 bg-gray-50">
+                                <option value="ligera">Ligera (Sudor, uso normal)</option>
+                                <option value="media">Media (Manchas comida, tierra)</option>
+                                <option value="pesada">Pesada (Grasa mecánica, cocina)</option>
+                                <option value="biologica">Biológica (Sangre, Vómito, Heces)</option>
+                            </select>
+                            <p class="text-xs text-red-500 mt-1 hidden" id="bioWarning"><i class="fa-solid fa-triangle-exclamation"></i> Requiere protocolo de bioseguridad.</p>
+                        </div>
+
+                        <button onclick="addGarment()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+                            <i class="fa-solid fa-plus circle mr-1"></i> Añadir Lote
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista y Resumen -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-700">Lotes en Cola</h3>
+                            <span class="text-sm bg-gray-200 px-2 py-1 rounded">Total: <span id="totalIncomingWeight">0</span> kg</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-100 text-gray-600 uppercase">
+                                    <tr>
+                                        <th class="px-4 py-2">Prenda</th>
+                                        <th class="px-4 py-2">Peso</th>
+                                        <th class="px-4 py-2">Suciedad</th>
+                                        <th class="px-4 py-2">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="garmentList" class="divide-y divide-gray-200"></tbody>
+                            </table>
+                            <div id="emptyListMsg" class="text-center py-4 text-gray-400 italic">No hay prendas añadidas aún.</div>
+                        </div>
+                        <div class="mt-4 text-right">
+                             <button onclick="clearGarments()" class="text-red-500 text-sm hover:underline">Borrar todo</button>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Tratamiento Sugerido -->
+                    <div id="treatmentSuggestion" class="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-300 rounded-lg p-6 hidden">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-clipboard-check mr-2 text-green-600"></i>Protocolo de Lavado Sugerido</h3>
+                        <div id="protocolContent" class="text-gray-700 space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: CALCULADORA QUÍMICA -->
+        <div id="chemical" class="tab-content fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Parámetros Químicos -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-blue-900">Dosificación Química</h2>
+                        <button onclick="switchTab('learning')" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200">
+                            ¿No tienes el dato en ml/kg?
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">Ingresa la dosis en <b>ml por cada kg</b>. Si usas productos de súper (tapas), ve a Aprendizaje para convertir.</p>
+                    
+                    <div class="space-y-4">
+                        <!-- Detergente Alcalino -->
+                        <div class="relative group">
+                            <label class="flex items-center text-sm font-bold text-gray-700">
+                                Detergente Alcalino (ml/kg)
+                                <i class="fa-solid fa-circle-info ml-2 text-blue-400 text-xs tooltip-icon" title="Producto fuerte pH>9. Abre la fibra."></i>
+                            </label>
+                            <input type="number" step="0.1" id="doseAlkaline" class="w-full p-2 border rounded mt-1" placeholder="Ej: 3-5 ml/kg">
+                        </div>
+
+                        <!-- Detergente Tensioactivo -->
+                        <div>
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Detergente/Tensioactivo (ml/kg)
+                                <i class="fa-solid fa-circle-info ml-2 text-blue-400 text-xs tooltip-icon" title="El jabón principal."></i>
+                            </label>
+                            <input type="number" step="0.1" id="doseDetergent" class="w-full p-2 border rounded mt-1" placeholder="Ej: 1-2 ml/kg">
+                        </div>
+
+                        <!-- Blanqueador -->
+                        <div>
+                            <label class="flex items-center text-sm font-medium text-gray-700">
+                                Blanqueador (Cloro/Oxígeno) (ml/kg)
+                                <i class="fa-solid fa-circle-info ml-2 text-blue-400 text-xs tooltip-icon" title="Cloro para blancos fuertes, Oxígeno para color."></i>
+                            </label>
+                            <input type="number" step="0.1" id="doseBleach" class="w-full p-2 border rounded mt-1" placeholder="Ej: 4-6 ml/kg">
+                        </div>
+
+                        <!-- Neutralizante -->
+                        <div class="relative">
+                            <label class="flex items-center text-sm font-bold text-gray-700 text-purple-700">
+                                Neutralizante (ml/kg)
+                                <i class="fa-solid fa-circle-info ml-2 text-purple-400 text-xs tooltip-icon" title="Ácido suave final para equilibrar pH."></i>
+                            </label>
+                            <input type="number" step="0.1" id="doseNeutralizer" class="w-full p-2 border rounded mt-1 border-purple-200" placeholder="Ej: 1-2 ml/kg">
+                        </div>
+
+                        <!-- Suavizante -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Suavizante (ml/kg)</label>
+                            <input type="number" step="0.1" id="doseSoftener" class="w-full p-2 border rounded mt-1" placeholder="Ej: 2-3 ml/kg">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados Químicos -->
+                <div class="bg-blue-50 rounded-lg shadow-md p-6 border border-blue-100">
+                    <h2 class="text-xl font-bold text-blue-900 mb-4">Totales para la Carga</h2>
+                    <div class="bg-white p-4 rounded shadow-sm mb-4">
+                         <p class="text-sm text-gray-500">Carga Actual:</p>
+                         <p class="text-2xl font-bold text-gray-800"><span id="calcWeightBasis">0</span> kg</p>
+                    </div>
+
+                    <ul class="space-y-3">
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span class="text-gray-700 font-medium">Detergente Alcalino Total:</span>
+                            <span class="text-xl font-bold text-blue-600" id="totalAlkaline">0 ml</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span class="text-gray-700">Detergente Total:</span>
+                            <span class="text-lg font-bold text-gray-800" id="totalDetergent">0 ml</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span class="text-gray-700">Blanqueador Total:</span>
+                            <span class="text-lg font-bold text-gray-800" id="totalBleach">0 ml</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2 bg-purple-50 p-1 rounded">
+                            <span class="text-purple-900 font-bold">Neutralizante Total:</span>
+                            <span class="text-xl font-bold text-purple-700" id="totalNeutralizer">0 ml</span>
+                        </li>
+                        <li class="flex justify-between items-center pt-1">
+                            <span class="text-gray-700">Suavizante Total:</span>
+                            <span class="text-lg font-bold text-gray-800" id="totalSoftener">0 ml</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-6 p-3 bg-yellow-50 text-yellow-800 text-sm rounded border border-yellow-200">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                        <strong>Nota:</strong> Estos valores son el total a poner en la lavadora. Si usa dosificador automático, use la columna izquierda.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: APRENDIZAJE Y GUÍAS (MEJORADA) -->
+        <div id="learning" class="tab-content fade-in">
+            <h2 class="text-3xl font-bold text-blue-900 mb-6">Centro de Aprendizaje</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tarjeta 1: Maestría en Dosificación (NUEVA) -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden border-t-4 border-indigo-500 col-span-1 md:col-span-2">
+                    <div class="bg-indigo-50 p-4 text-indigo-900 font-bold flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-calculator mr-2"></i> Maestría en Dosificación: ¿Qué hago si mi jabón no dice ml/kg?
+                        </div>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Lado A: Explicación -->
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-gray-800">El Problema de las "Tapas" y "Cargas"</h4>
+                            <p class="text-sm text-gray-600">Los detergentes de supermercado suelen decir: <em>"Use 1 tapa para carga regular"</em> o <em>"100ml para mucha ropa"</em>. Esto es impreciso para uso profesional. Para usar esta calculadora, necesitamos convertir eso a un estándar técnico.</p>
+                            
+                            <div class="bg-blue-50 p-3 rounded text-sm border-l-4 border-blue-500">
+                                <strong>La Fórmula de Conversión:</strong><br>
+                                <code>(Cantidad que dice la botella) ÷ (Kilos de ropa que dice la botella) = Dosis ml/kg</code>
+                            </div>
+
+                            <h5 class="font-bold text-gray-700 mt-2">Ejemplo Práctico:</h5>
+                            <p class="text-xs text-gray-600 italic">"La botella dice: Use 100ml para una carga grande de 10kg".</p>
+                            <p class="text-sm font-mono bg-gray-100 p-1 inline-block">100ml ÷ 10kg = 10 ml/kg</p>
+                            <p class="text-xs text-green-600 font-bold"> -> Pones "10" en la calculadora.</p>
+                        </div>
+
+                        <!-- Lado B: Referencias Comunes -->
+                        <div class="bg-gray-50 p-4 rounded border">
+                            <h4 class="font-bold text-gray-800 mb-3">Guía Rápida de Medidas Caseras</h4>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-bottle-water mt-1 mr-2 text-blue-400"></i>
+                                    <div>
+                                        <strong>1 Tapa de Detergente Líquido:</strong><br>
+                                        Suele ser entre <strong>40ml y 60ml</strong>. (Revise si la tapa tiene marcas).
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-mug-hot mt-1 mr-2 text-orange-400"></i>
+                                    <div>
+                                        <strong>1 Taza de Cocina (Cup):</strong><br>
+                                        Estándar: <strong>240ml - 250ml</strong>.
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fa-solid fa-industry mt-1 mr-2 text-gray-600"></i>
+                                    <div>
+                                        <strong>Detergente Industrial vs Casero:</strong><br>
+                                        <span class="text-xs">
+                                        - Casero: Requiere <strong>8 - 15 ml/kg</strong> (tiene mucha agua).<br>
+                                        - Industrial Concentrado: Requiere solo <strong>2 - 5 ml/kg</strong>.
+                                        </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: Diccionario Químico -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="bg-blue-600 p-4 text-white font-bold flex items-center">
+                        <i class="fa-solid fa-flask mr-2"></i> Diccionario Químico
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <h4 class="font-bold text-blue-800">¿Qué es el Detergente Alcalino?</h4>
+                            <p class="text-sm text-gray-600">Es un detergente con pH alto (mayor a 9). Imagínalo como un "abre-puertas": hincha las fibras de la tela para que la suciedad atrapada salga. Es agresivo pero necesario para ropa muy sucia.</p>
+                        </div>
+                        <hr>
+                        <div>
+                            <h4 class="font-bold text-blue-800">¿Qué es el Neutralizante?</h4>
+                            <p class="text-sm text-gray-600">Elimina restos químicos. Si lavas con alcalino y cloro, la ropa queda con pH alto. Si no usas neutralizante (ácido), la ropa amarillea al planchar y causa alergias en la piel.</p>
+                        </div>
+                        <hr>
+                        <div>
+                            <h4 class="font-bold text-blue-800">Cloro vs Oxígeno</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
+                                <li><strong>Cloro:</strong> Solo algodón blanco. Mata todo, pero debilita la tela.</li>
+                                <li><strong>Oxígeno:</strong> (Peróxido) Seguro para color. Requiere agua caliente.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: Protocolos Biológicos -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden border-t-4 border-red-500">
+                    <div class="bg-red-50 p-4 text-red-800 font-bold flex items-center">
+                        <i class="fa-solid fa-biohazard mr-2"></i> Protocolo: Fluidos Biológicos
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="bg-red-50 p-3 rounded text-sm border-l-4 border-red-500">
+                            <strong>¡Alerta Roja!</strong> Heces, Vómito, Sangre.
+                        </div>
+                        
+                        <h4 class="font-bold text-gray-800">Paso a Paso Seguro:</h4>
+                        <ol class="list-decimal list-inside text-sm text-gray-700 space-y-2">
+                            <li><strong>Solidos FUERA:</strong> Retire restos sólidos manualmente con guantes. Nunca a la máquina.</li>
+                            <li><strong>Enjuague FRÍO (Sluice):</strong> Prelavado solo con agua fría. El calor "cocina" la sangre y fija la mancha.</li>
+                            <li><strong>Lavado TÉRMICO:</strong> Lavado principal a >70°C por 10 min.</li>
+                            <li><strong>Química:</strong> Dosis doble de desinfectante.</li>
+                        </ol>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts de Lógica -->
+    <script>
+        // --- 1. Gestión de Pestañas ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-400', 'bg-blue-800');
+                btn.classList.add('border-transparent');
+            });
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.remove('border-transparent');
+            document.getElementById('btn-' + tabId).classList.add('border-blue-400', 'bg-blue-800');
+            if (tabId === 'chemical') calculateChemicals();
+        }
+
+        // --- 2. Lógica de Máquina ---
+        const machineInput = document.getElementById('machineCapacity');
+        const factorInput = document.getElementById('loadFactor');
+        const realLoadDisplay = document.getElementById('realLoadDisplay');
+        const calcWeightBasis = document.getElementById('calcWeightBasis');
+
+        function updateMachineLoad() {
+            const cap = parseFloat(machineInput.value) || 0;
+            const factor = parseFloat(factorInput.value) || 1;
+            const realLoad = (cap * factor).toFixed(1);
+            realLoadDisplay.textContent = realLoad;
+            
+            if (incomingGarments.length === 0) {
+                calcWeightBasis.textContent = realLoad;
+                calculateChemicals();
+            }
+        }
+
+        machineInput.addEventListener('input', updateMachineLoad);
+        factorInput.addEventListener('change', updateMachineLoad);
+        function goToTreatment() { switchTab('incoming'); }
+
+        // --- 3. Lógica de Recepción ---
+        let incomingGarments = [];
+        function addGarment() {
+            const type = document.getElementById('garmentType').value;
+            const weight = parseFloat(document.getElementById('garmentWeight').value);
+            const soil = document.getElementById('soilLevel').value;
+
+            if (!weight || weight <= 0) { alert("Ingrese un peso válido."); return; }
+
+            incomingGarments.push({ id: Date.now(), type, weight, soil });
+            renderGarments();
+            document.getElementById('garmentWeight').value = '';
+        }
+
+        function removeGarment(id) {
+            incomingGarments = incomingGarments.filter(g => g.id !== id);
+            renderGarments();
+        }
+
+        function clearGarments() {
+            incomingGarments = [];
+            renderGarments();
+        }
+
+        function renderGarments() {
+            const list = document.getElementById('garmentList');
+            const totalDisplay = document.getElementById('totalIncomingWeight');
+            const emptyMsg = document.getElementById('emptyListMsg');
+            
+            list.innerHTML = '';
+            let totalW = 0;
+            let maxSoilLevel = 0;
+
+            incomingGarments.forEach(g => {
+                totalW += g.weight;
+                let severity = 0;
+                let rowClass = "";
+                if (g.soil === 'media') severity = 1;
+                if (g.soil === 'pesada') severity = 2;
+                if (g.soil === 'biologica') { severity = 3; rowClass = "bg-red-50 text-red-900 font-bold"; }
+                if (severity > maxSoilLevel) maxSoilLevel = severity;
+
+                list.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50 ${rowClass}">
+                        <td class="px-4 py-2">${g.type}</td>
+                        <td class="px-4 py-2">${g.weight} kg</td>
+                        <td class="px-4 py-2 capitalize">${g.soil}</td>
+                        <td class="px-4 py-2 text-right"><button onclick="removeGarment(${g.id})" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
+            });
+
+            totalDisplay.textContent = totalW.toFixed(1);
+            
+            if (totalW > 0) {
+                calcWeightBasis.textContent = totalW.toFixed(1);
+                emptyMsg.style.display = 'none';
+                generateTreatmentPlan(maxSoilLevel, totalW);
+            } else {
+                emptyMsg.style.display = 'block';
+                document.getElementById('treatmentSuggestion').classList.add('hidden');
+                updateMachineLoad(); 
+            }
+            calculateChemicals();
+        }
+
+        function generateTreatmentPlan(severity, weight) {
+            const container = document.getElementById('treatmentSuggestion');
+            const content = document.getElementById('protocolContent');
+            const machineCap = parseFloat(document.getElementById('machineCapacity').value) || 0;
+            
+            container.classList.remove('hidden');
+            let html = "";
+
+            if (machineCap > 0 && weight > machineCap) {
+                html += `<div class="bg-red-100 text-red-800 p-2 rounded mb-2 border border-red-300 font-bold">⚠️ ALERTA: Peso excede capacidad de máquina. Divida la carga.</div>`;
+            }
+
+            if (severity === 3) {
+                html += `<p class="font-bold text-red-700">Riesgo Biológico:</p>
+                        <ul class="list-disc list-inside text-sm"><li>EPP Completo.</li><li>Prelavado AGUA FRÍA.</li><li>Lavado >70°C.</li><li>Química alta desinfección.</li></ul>`;
+            } else if (severity === 2) {
+                html += `<p class="font-bold text-orange-700">Suciedad Pesada:</p>
+                        <ul class="list-disc list-inside text-sm"><li>Prelavado tibio con alcalino.</li><li>Lavado caliente (65°C-75°C).</li><li>3 enjuagues + neutralizante.</li></ul>`;
+            } else {
+                html += `<p class="font-bold text-green-700">Tratamiento Estándar:</p>
+                        <ul class="list-disc list-inside text-sm"><li>Ciclo normal 40°C - 60°C.</li><li>Nivel de agua medio/alto.</li></ul>`;
+            }
+            content.innerHTML = html;
+        }
+
+        document.getElementById('soilLevel').addEventListener('change', function(e) {
+            const warning = document.getElementById('bioWarning');
+            warning.classList.toggle('hidden', e.target.value !== 'biologica');
+        });
+
+        // --- 4. Lógica Química ---
+        const chemInputs = ['doseAlkaline', 'doseDetergent', 'doseBleach', 'doseNeutralizer', 'doseSoftener'];
+        chemInputs.forEach(id => document.getElementById(id).addEventListener('input', calculateChemicals));
+
+        function calculateChemicals() {
+            const weight = parseFloat(document.getElementById('calcWeightBasis').textContent) || 0;
+            chemInputs.forEach(id => {
+                const dose = parseFloat(document.getElementById(id).value) || 0;
+                document.getElementById(id.replace('dose', 'total')).textContent = (dose * weight).toFixed(1) + ' ml';
+            });
+        }
+
+        // Init
+        updateMachineLoad();
+        document.querySelectorAll('.tooltip-icon').forEach(icon => {
+            icon.addEventListener('click', (e) => alert(e.target.getAttribute('title')));
+        });
+
+    </script>
+</body>
+</html>
